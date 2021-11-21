@@ -28,6 +28,12 @@ interface IERC20 {
 
 }
 
+interface ITokenContract {
+    function transfer(address _receiver, uint256 _amount) external returns (bool);
+}
+
+
+
 library SafeMath {
 
     function add(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -453,6 +459,26 @@ contract UrbanHero is Context, IERC20, Ownable {
     uint256 public _maxTxAmount = 3000000  * 10**18;
     uint256 private minimumTokensBeforeSwap = 200000 * 10**18; 
     uint256 private buyBackUpperLimit = 1 * 10**18;
+
+ITokenContract tokenContract = ITokenContract(address(0x123));
+    uint256 public claimAmount;
+    address public owner;
+    
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function claimTokens() external {
+        // send `claimAmount` of tokens from this contract address
+        // to the user executing the `claimTokens()` function
+        bool success = tokenContract.transfer(msg.sender, claimAmount);
+        require(success);
+    }
+    
+    function setClaimAmount(uint256 _claimAmount) external onlyOwner {
+        claimAmount = _claimAmount;
+    }
 
     IUniswapV2Router02 public immutable uniswapV2Router;
     address public immutable uniswapV2Pair;
